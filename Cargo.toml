@@ -1,0 +1,17 @@
+[package]
+name = "lx"
+version = "1.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+chrono = "0.4"
+glob = "0.3"
+toml = "0.8"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
