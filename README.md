@@ -1,22 +1,17 @@
 # lx
 
-`lx` is a Rust command-line app for listing directory contents. It is intended as a small alternative to `ls`, with a formatted list view, colored output, optional permission strings, hidden-file support, directory visibility controls, and simple glob filtering.
+Simple, opinionated replacement for `ls`:
+
+- Formatted list view
+- Colored output
+- Optional permission strings
+- Hidden-file support
+- Directory visibility controls
+- Simple glob filtering
 
 ## Purpose
 
 `lx` shows directories first, then files, with each group sorted alphabetically. It displays file sizes, modification dates, modification times, and color-coded names so directory listings are easy to scan.
-
-## Build
-
-```sh
-cargo build
-```
-
-The debug binary is written to:
-
-```sh
-./target/debug/lx
-```
 
 ## Usage
 
@@ -75,13 +70,14 @@ lx 'src/*.rs'
 
 ## Configuration
 
-Configuration is read from:
+Default configuration file `~/.config/lx.toml` is created when the app is first run.
+CLI flags override configuration settings.
 
 ```sh
 ~/.config/lx.toml
 ```
 
-Example:
+Default configuration (only suits a dark terminal theme).
 
 ```toml
 [settings]
@@ -98,7 +94,17 @@ dir = "33"
 exec = "32"
 ```
 
-CLI flags override configuration settings.
+## Build
+
+```sh
+cargo build
+```
+
+The debug binary is written to:
+
+```sh
+./target/debug/lx
+```
 
 ## License
 

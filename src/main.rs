@@ -75,23 +75,57 @@ struct Config {
     settings: Settings,
 }
 
-fn get_config_path() -> PathBuf {
-    let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
-    PathBuf::from(home).join(".config").join("lx.toml")
-}
-
-fn load_config() -> Config {
-    let config_path = get_config_path();
-
-    let mut config = Config {
+fn default_config() -> Config {
+    Config {
         settings: Settings {
             showdir: true,
             ..Settings::default()
         },
         ..Config::default()
-    };
+    }
+}
+
+fn get_config_path() -> PathBuf {
+    let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+    PathBuf::from(home).join(".config").join("lx.toml")
+}
+
+fn format_config(config: &Config) -> String {
+    format!(
+        "[settings]\nall = {}\npermissions = {}\nshowdir = {}\n\n[colors]\nsize = \"{}\"\ndate = \"{}\"\ntime = \"{}\"\nfile = \"{}\"\ndir = \"{}\"\nexec = \"{}\"\n",
+        config.settings.all,
+        config.settings.permissions,
+        config.settings.showdir,
+        config.colors.size,
+        config.colors.date,
+        config.colors.time,
+        config.colors.file,
+        config.colors.dir,
+        config.colors.exec
+    )
+}
+
+fn create_default_config(config_path: &Path, config: &Config) -> std::io::Result<()> {
+    if let Some(parent) = config_path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+
+    fs::write(config_path, format_config(config))
+}
+
+fn load_config() -> Config {
+    let config_path = get_config_path();
+    let mut config = default_config();
 
     if !config_path.exists() {
+        if let Err(e) = create_default_config(&config_path, &config) {
+            eprintln!(
+                "lx: cannot create default config '{}': {}",
+                config_path.display(),
+                e
+            );
+        }
+
         return config;
     }
 
@@ -579,5 +613,36 @@ mod tests {
         assert_eq!(format_size(1024, false), "1K");
         assert_eq!(format_size(1536, false), "1.5K");
         assert_eq!(format_size(0, true), "-");
+    }
+
+    #[test]
+    fn default_config_toml_contains_theme_and_settings() {
+        let toml = format_config(&default_config());
+
+        assert!(toml.contains("[settings]"));
+        assert!(toml.contains("all = false"));
+        assert!(toml.contains("permissions = false"));
+        assert!(toml.contains("showdir = true"));
+        assert!(toml.contains("[colors]"));
+        assert!(toml.contains("size = \"32\""));
+        assert!(toml.contains("date = \"34\""));
+        assert!(toml.contains("time = \"34\""));
+        assert!(toml.contains("file = \"38;5;250\""));
+        assert!(toml.contains("dir = \"33\""));
+        assert!(toml.contains("exec = \"32\""));
+    }
+
+    #[test]
+    fn create_default_config_creates_parent_directory() {
+        let config_path = std::env::temp_dir()
+            .join(format!("lx-test-{}", std::process::id()))
+            .join("nested")
+            .join("lx.toml");
+
+        create_default_config(&config_path, &default_config()).unwrap();
+
+        let content = fs::read_to_string(config_path).unwrap();
+        assert!(content.contains("[settings]"));
+        assert!(content.contains("[colors]"));
     }
 }
