@@ -15,6 +15,8 @@ Simple, opinionated replacement for `ls`:
 
 ## Usage
 
+CLI flags override configuration settings.
+
 List the current directory:
 
 ```sh
@@ -70,12 +72,7 @@ lx 'src/*.rs'
 
 ## Configuration
 
-Default configuration file `~/.config/lx.toml` is created when the app is first run.
-CLI flags override configuration settings.
-
-```sh
-~/.config/lx.toml
-```
+Configuration file `~/.config/lx.toml`. Created when `lx` is first run.
 
 Default configuration (only suits a dark terminal theme).
 
@@ -93,6 +90,20 @@ file = "38;5;250"
 dir = "33"
 exec = "32"
 ```
+
+### Color codes
+
+Color values are ANSI Select Graphic Rendition (SGR) parameters. For example:
+
+- `"32"` = green foreground
+- `"34"` = blue foreground
+- `"33"` = yellow foreground
+- `"38;5;250"` = 256-color foreground color 250
+
+You can use standard foreground colors like `30`-`37`, bright foreground colors like `90`-`97`, or 256-color foreground values in the form `38;5;N`, where `N` is `0`-`255`.
+
+For more options, see the ANSI escape code SGR color reference:
+https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters
 
 ## Build
 
